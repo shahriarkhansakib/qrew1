@@ -1,0 +1,27 @@
+# Local temporary research, scratch files, and third-party reference clones
+/.tmp/
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+.turbo/
+out/
+*.tsbuildinfo
+
+# Environment & local secrets
+.env
+.env.*
+!.env.example
+
+# Tests, logs & coverage
+coverage/
+playwright-report/
+test-results/
+*.log
+npm-debug.log*
+pnpm-debug.log*

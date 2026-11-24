@@ -1,0 +1,92 @@
+{
+  "$schema": "./node_modules/turbo/schema.json",
+  "ui": "stream",
+  "globalDependencies": ["packages/config/typescript/*.json"],
+  "globalPassThroughEnv": [
+    "NODE_ENV",
+    "CI",
+    "DATABASE_URL",
+    "BETTER_AUTH_SECRET",
+    "BETTER_AUTH_URL",
+    "WEB_PUBLIC_ORIGIN",
+    "API_INTERNAL_URL",
+    "PORT",
+    "LOG_LEVEL",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "SMTP_HOST",
+    "SMTP_PORT",
+    "SMTP_FROM",
+    "MAILPIT_API_URL",
+    "LOCALAPPDATA",
+    "APPDATA",
+    "USERPROFILE",
+    "TEMP",
+    "TMP",
+    "SystemRoot",
+    "ComSpec",
+    "PATHEXT",
+    "PLAYWRIGHT_BROWSERS_PATH"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "env": ["NEXT_PUBLIC_*"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"],
+      "outputs": []
+    },
+    "//#lint:arch": {
+      "inputs": [
+        "eslint.config.mjs",
+        "packages/config/eslint/**",
+        "apps/*/src/**",
+        "apps/*/e2e/**",
+        "apps/*/tests/**",
+        "packages/contracts/src/**"
+      ],
+      "outputs": []
+    },
+    "//#lint:root": {
+      "inputs": ["biome.json", "turbo.json", "package.json", "eslint.config.mjs"],
+      "outputs": []
+    },
+    "lint": {
+      "dependsOn": ["//#lint:arch", "//#lint:root"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/biome.json"],
+      "outputs": []
+    },
+    "format": {
+      "cache": false
+    },
+    "//#format:check:root": {
+      "inputs": ["biome.json", "turbo.json", "package.json", "eslint.config.mjs"],
+      "outputs": []
+    },
+    "format:check": {
+      "dependsOn": ["//#format:check:root"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/biome.json"],
+      "outputs": []
+    },
+    "test:unit": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "src/**", "vitest.config.ts"],
+      "outputs": []
+    },
+    "test:integration": {
+      "cache": false
+    },
+    "test": {
+      "cache": false
+    },
+    "test:e2e": {
+      "cache": false
+    }
+  }
+}

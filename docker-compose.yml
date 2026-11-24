@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: qrew-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: qrew
+      POSTGRES_PASSWORD: qrew_dev_password
+      POSTGRES_DB: qrew
+    ports:
+      - "54329:5432"
+    volumes:
+      - qrew_pg_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U qrew -d qrew"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: qrew-mailpit
+    restart: unless-stopped
+    ports:
+      - "10259:1025"
+      - "8029:8025"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8025/api/v1/info"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  qrew_pg_data:
