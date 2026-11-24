@@ -1,0 +1,49 @@
+{
+  "name": "qrew",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.6.0",
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "scripts": {
+    "prepare": "husky",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "lint:biome": "biome lint .",
+    "lint:arch": "eslint .",
+    "lint:root": "biome lint biome.json turbo.json package.json eslint.config.mjs",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "format:check": "turbo run format:check",
+    "format:check:root": "biome format biome.json turbo.json package.json eslint.config.mjs",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:unit": "turbo run test:unit",
+    "test:integration": "turbo run test:integration",
+    "test:e2e": "turbo run test:e2e",
+    "db:generate": "pnpm --filter @qrew/api db:generate",
+    "db:migrate": "pnpm --filter @qrew/api db:migrate",
+    "db:reset": "pnpm --filter @qrew/api db:reset",
+    "bootstrap:admin": "pnpm --filter @qrew/api bootstrap:admin",
+    "bootstrap:super-admin": "pnpm --filter @qrew/api bootstrap:super-admin"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,json,jsonc,css}": [
+      "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
+    ]
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.8",
+    "@qrew/config": "workspace:*",
+    "@types/node": "^22.15.0",
+    "eslint": "^9.25.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.1",
+    "turbo": "^2.11.0",
+    "typescript": "^5.9.3"
+  }
+}

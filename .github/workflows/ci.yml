@@ -1,0 +1,95 @@
+name: Qrew CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  verify:
+    name: Format, Lint, Typecheck, Migrate, Test, Build & E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: qrew
+          POSTGRES_PASSWORD: qrew_dev_password
+          POSTGRES_DB: qrew
+        ports:
+          - 54329:5432
+        options: >-
+          --health-cmd="pg_isready -U qrew -d qrew"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+      mailpit:
+        image: axllent/mailpit:latest
+        ports:
+          - 10259:1025
+          - 8029:8025
+
+    env:
+      DATABASE_URL: postgresql://qrew:qrew_dev_password@localhost:54329/qrew
+      BETTER_AUTH_SECRET: ci-test-secret-minimum-thirty-two-characters-long
+      BETTER_AUTH_URL: http://localhost:3000/api/auth
+      WEB_PUBLIC_ORIGIN: http://localhost:3000
+      API_INTERNAL_URL: http://localhost:8787
+      PORT: 8787
+      LOG_LEVEL: warn
+      GOOGLE_CLIENT_ID: ci-google-client-id.apps.googleusercontent.com
+      GOOGLE_CLIENT_SECRET: ci-google-client-secret
+      SMTP_HOST: localhost
+      SMTP_PORT: 10259
+      SMTP_FROM: no-reply@qrew.local
+      MAILPIT_API_URL: http://localhost:8029
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Biome formatting check
+        run: pnpm format:check
+
+      - name: Biome lint check
+        run: pnpm lint:biome
+
+      - name: ESLint architecture boundary check
+        run: pnpm lint:arch
+
+      - name: TypeScript typecheck
+        run: pnpm typecheck
+
+      - name: Run unit tests
+        run: pnpm test:unit
+
+      - name: Apply PostgreSQL database migrations
+        run: pnpm db:migrate
+
+      - name: Run PostgreSQL integration tests
+        run: pnpm test:integration
+
+      - name: Build packages & applications
+        run: pnpm build
+
+      - name: Install Playwright Chromium browser
+        run: pnpm --filter @qrew/web exec playwright install --with-deps chromium
+
+      - name: Run Playwright E2E vertical slice
+        run: pnpm test:e2e
