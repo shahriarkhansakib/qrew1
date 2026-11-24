@@ -1,0 +1,7 @@
+{
+  "extends": "@qrew/config/typescript/base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["src/**/*.ts"]
+}
